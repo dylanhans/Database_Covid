@@ -1,0 +1,250 @@
+drop database if exists covidDB;
+
+create database if not exists covidDB;
+
+use covidDB;
+
+create table Company(
+       name varchar(40) not null primary key,
+       street varchar(40),
+       city varchar(40),
+       province char(2),
+       postalCode char(6)
+);
+
+INSERT INTO company VALUES
+('PFIZER','DAVIS DRIVE','TORONTO','ON','L6X0W6'),
+('ASTRA','DRIVE','KINGSTON','ON','L6X0W4'),
+('MODERNA 2','STREET DRIVE','BRAMPTON','ON','L6X0W3'),
+('JOHNSON','DAVIS DRIVE','MISSISSAUGA','ON','L6X0W8'),
+('MODERNA','SUMMER DRIVE','CORNWALL','ON','L6X0W9'),
+('UNKOWN','DAVIS DRIVE','BURLINGTON','ON','L6X0W1')
+;
+
+
+create table Vaccine(
+	lot char(6) not null primary key,
+	expiryDate date not null,
+	productionDate date not null,
+	doses integer,
+	producedBy varchar(40) not null,
+	foreign key (producedBy) references Company(name)
+);
+
+
+INSERT INTO vaccine VALUES
+('ABCD123','2001-08-24','5000000','2000-08-24','PFIZER'),
+('AYCD124','2001-08-24','3000000','2000-08-24','PFIZER'),
+('ADHD126','2001-08-24','7000000','2000-08-24','PFIZER'),
+('AHCD122','2001-08-24','2000000','2000-08-24','PFIZER'),
+('ADCD128','2001-08-24','1000000','2000-08-24','PFIZER'),
+('AACD129','2001-08-24','9000000','2000-08-24','PFIZER')
+;
+
+
+create table VaxClinic(
+	name varchar(40) not null primary key,
+       street varchar(40),
+       city varchar(40),
+       province char(2),
+       postalCode char(6)
+);
+
+INSERT INTO vaxclinic VALUES
+('SUMMERDRIVE','DAVIS DRIVE','TORONTO','ON','L6X0W6'),
+('DRIVESUMMER','DRIVE','KINGSTON','ON','L6X0W4'),
+('BELAIR','STREET DRIVE','BRAMPTON','ON','L6X0W3'),
+('FOUDO','DAVIS DRIVE','MISSISSAUGA','ON','L6X0W8'),
+('HONEYWELL','SUMMER DRIVE','CORNWALL','ON','L6X0W9'),
+('TREETOP','DAVIS DRIVE','BURLINGTON','ON','L6X0W1')
+;
+
+Create table shipsTo(
+	lotNumber char(6) not null,
+	clinic char(40) not null,
+	primary key(lotNumber, clinic),
+	foreign key (lotNumber) references vaccine(lot) on delete cascade,
+	foreign key (clinic) references VaxClinic(name) on delete cascade
+);
+
+INSERT INTO shipsto VALUES
+('ABCD123','SUMMERDRIVE'),
+('AYCD124','DRIVESUMMER'),
+('ADCD126','BELAIR'),
+('AHCD122','FOUDO'),
+('ADCD128','HONEYWELL'),
+('AACD129','TREETOP')
+;
+
+Create table Patient(
+	OHIP char(20) not null primary key,
+	firstName varchar(40) not null,
+	lastName varchar(40) not null,
+	dob date not null
+);
+
+INSERT INTO patient VALUES
+('1234567892','DYLAN','HA','2001-08-28'),
+('1234567891','DYLANS','HAS','2001-08-24'),
+('1234567894','DYLANSS','HAS','2001-08-23'),
+('1234567898','DYLANSSS','ON','2001-08-22'),
+('1234567899','DYLANSSSS','HAN','2001-08-21'),
+('1234567893','DYLANSSSS','ONS','2001-08-25')
+;
+
+Create table Spouse(
+    OHIP char(20) not null primary key,
+    spouseOHIP char(20) not null,
+	firstName varchar(40) not null,
+	lastName varchar(40) not null,
+	phone char(10),
+	foreign key (spouseOHIP) references Patient(OHIP) on delete cascade
+);
+
+INSERT INTO Spouse VALUES
+('9876543115','1234567892','DYLAN','HA','6475174266'),
+('9876543112','1234567891','DYLANS','HAS','6475178266'),
+('9877543115','1234567894','DYLANSS','HAS','6475174166'),
+('9875543115','1234567898','DYLANSSS','ON','6475174766'),
+('9876542315','1234567899','DYLANSSSS','HAN','6475134266'),
+('9874443115','1234567893','DYLANSSSS','ONS','6475178266')
+;
+
+Create table Nurse(
+	ID char(20) not null primary key,
+	firstName varchar(40) not null,
+	lastName varchar(40) not null
+);
+
+INSERT INTO nurse VALUES
+('ABCD123','SARAH','HA'),
+('AY2D124','SARHH','HAN'),
+('AD4D126','S','DSA'),
+('AH1D122','SARH','GFS'),
+('AD1D128','SARA','SADA'),
+('AA7D129','SRAH','YEHS')
+;
+   
+
+Create table practice(
+	name char(40) not null primary key,
+	phone char(10)
+);
+
+INSERT INTO practice VALUES
+('ERi','6475174261'),
+('RESP','6475134266'),
+('CLINICAL','6475174666'),
+('ER','6475174256'),
+('RESPIRAT','6425174266'),
+('RESPIRATORY','6415174266')
+;
+
+Create table doctor(
+    ID char(20) not null primary key,
+	firstName varchar(40) not null,
+	lastName varchar(40) not null,
+	practiceName char(40),
+	foreign key (practiceName) references practice(name) on delete set null
+);
+
+INSERT INTO doctor VALUES
+('1BCD123','DARAH','HA','ERi'),
+('2Y2D124','AARHH','HAN','RESP'),
+('3D4D126','SS','DSA','CLINICAL'),
+('4H1D122','HARH','GFS','ER'),
+('5D1D128','BARA','SADA','RESPIRAT'),
+('6A7D129','ERAH','YEHS','RESPIRATORY')
+;
+
+Create table nurseCredentials(
+	ID char(20) not null,
+	Cred char(4) not null,
+	Primary key(ID, Cred),
+	Foreign key (ID) references Nurse(id) on delete cascade
+);
+
+INSERT INTO nursecredentials VALUES
+('ABCD123','MD'),
+('AY2D124','ME'),
+('AD4D126','ER'),
+('AH1D122','IV'),
+('AD1D128','ENPH'),
+('AA7D129','PENG');
+
+Create table drCredentials(
+	ID char(20) not null,
+	Cred char(4) not null,
+	Primary key(ID, Cred),
+	Foreign key (ID) references Doctor(id) on delete cascade
+);
+
+INSERT INTO drcredentials VALUES
+('1BCD123','MD'),
+('2Y2D124','ME'),
+('3D4D126','ER'),
+('4H1D122','IV'),
+('5D1D128','ENPH'),
+('6A7D129','PENG');
+
+
+Create table NurseWorksAt(
+    ID char(20) not null,
+	clinicName char(40) not null,
+	Primary key(clinicName, ID),
+	Foreign key (clinicName) references VaxClinic(name) on delete cascade,
+	Foreign key (ID) references Nurse(ID) on delete cascade
+);
+
+
+INSERT INTO nurseworksat VALUES
+('ABCD123','SUMMERDRIVE'),
+('AY2D124','DRIVESUMMER'),
+('AD4D126','BELAIR'),
+('AH1D122','FOUDO'),
+('AD1D128','HONEYWELL'),
+('AA7D129','TREETOP')
+;
+
+Create table DrWorksAt(
+    ID char(20) not null,
+	clinicName char(40) not null,
+	Primary key(clinicName, ID),
+	Foreign key (clinicName) references VaxClinic(name) on delete cascade,
+	Foreign key (ID) references Doctor(ID) on delete cascade
+);
+
+INSERT INTO drworksat VALUES
+('1BCD123','SUMMERDRIVE'),
+('2Y2D124','DRIVESUMMER'),
+('3D4D126','BELAIR'),
+('4H1D122','FOUDO'),
+('5D1D128','HONEYWELL'),
+('6A7D129','TREETOP')
+;
+
+Create table Vaccination(
+    date datetime not null,
+    patientOHIP char(20) not null,
+	vaccineLot char(6) not null,
+    vaxClinic char(40) not null,
+	primary key(patientOHIP, vaxClinic, vaccineLot),
+	foreign key (patientOHIP) references Patient(OHIP) on delete restrict,
+	foreign key (vaxClinic) references vaxClinic(name) on delete restrict,
+	foreign key (vaccineLot) references vaccine(lot) on delete restrict
+);
+
+
+INSERT INTO vaccination VALUES
+('2001-08-24','1234567892','ABCD123','SUMMERDRIVE'),
+('2001-08-24','1234567891','AYCD124','DRIVESUMMER'),
+('2001-08-24','1234567894','ADCD126','BELAIR'),
+('2001-08-24','1234567898','AHCD122','FOUDO'),
+('2001-08-24','1234567899','ADCD128','HONEYWELL'),
+('2001-08-24','1234567893','AACD129','TREETOP')
+;
+
+
+	
+
+
